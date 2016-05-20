@@ -1,3 +1,6 @@
+#! /bin/python
+#coding=utf-8
+
 from django.shortcuts import render
 
 # Create your views here.
@@ -13,7 +16,11 @@ import xml.etree.ElementTree as ET
 
 import weixin_menu
 
-token = "llyan"
+#Just for weixin test Account
+#token = "llyan"
+
+#For weixin Account
+token = "lakjd342432akfakfja"
 
 def weixin_process_click_event(root):
     key = root.find("EventKey").text
@@ -49,6 +56,16 @@ def weixin_process_event(root):
         print "event CLICK"
         #return weixin_send_imgMsg(root, 'mpg8h8TZ6-vBKebGVkq_I5tlJ-s_VJqKF9za9IhG_OQm7YTiTSTJKk-bOxvw9gC7')
         return weixin_process_click_event(root)
+    elif Event == 'unsubscribe':
+        print 'unsubscribe'
+        return weixin_send_textMsg(root, False, '')
+    elif Event == 'subscribe':
+        print 'subscribe'
+        return weixin_send_textMsg(root, False, 
+                r"""你好，欢迎关注我的微信公众号
+        1). 输入news:查看图文信息
+        2). 输入其他字符：原样返回"""
+                )
     return
 
 def weixin_send_articles(root, articles):
@@ -150,7 +167,25 @@ def weixin_main(request):
             MsgType = root.find('MsgType').text
 
             if MsgType == 'text':
-                return weixin_send_textMsg(root)
+                msg = root.find('Content').text
+                if msg == 'news':
+                    articles = [
+                        {
+                            'Title':'First Article',
+                            'Description':'Auth:Linglong Yan',
+                            'PicUrl':'http://b.hiphotos.baidu.com/image/h%3D200/sign=52b5924e8b5494ee982208191df4e0e1/c2fdfc039245d6887554a155a3c27d1ed31b24e8.jpg',
+                            'Url':'http://mp.weixin.qq.com/s?__biz=MzAxOTUyMjc4OA==&mid=304671849&idx=1&sn=51e99be067058ed8abe9045026f58406&scene=0&previewkey=ZJn9%2BsWvxFrFogN50HG1tMNS9bJajjJKzz%2F0By7ITJA%3D#wechat_redirect'
+                        },
+                        {
+                            'Title':'Second Article',
+                            'Description':'Auth:Linglong Yan',
+                            'PicUrl':'http://b.hiphotos.baidu.com/image/h%3D200/sign=52b5924e8b5494ee982208191df4e0e1/c2fdfc039245d6887554a155a3c27d1ed31b24e8.jpg',
+                            'Url':'http://mp.weixin.qq.com/s?__biz=MzAxOTUyMjc4OA==&mid=304671849&idx=2&sn=d9680517add6544e84603b9b69427e05&scene=0&previewkey=ZJn9%2BsWvxFrFogN50HG1tMNS9bJajjJKzz%2F0By7ITJA%3D#wechat_redirect'
+                        },
+                    ]
+                    return weixin_send_articles(root, articles) 
+                else:
+                    return weixin_send_textMsg(root)
             elif MsgType == 'image':
                 print "Receive image"
             elif MsgType == 'voice':
