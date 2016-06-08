@@ -1,5 +1,5 @@
 #! /bin/python
-#coding=utf-8
+# coding=utf-8
 
 import hashlib
 
@@ -31,31 +31,6 @@ def get_callback_ip():
     ip_list = result['ip_list'] 
     return ip_list 
 
-def get_user_list():
-    token = get_access_token()
-    request = weixin_data.https_api['get_user_list'] % token
-    content = urllib2.urlopen(request).read()
-
-    result = json.loads(content)
-    return result 
-
-def get_user_info(openid):
-    token = get_access_token()
-    request = weixin_data.https_api['get_user_info'] % (token, openid)
-    content = urllib2.urlopen(request).read()
-
-    result = json.loads(content)
-    return result 
-
-def batch_get_user_info():
-    token = get_access_token()
-    request = weixin_data.https_api['batchget_user_info'] % token
-    content = urllib2.urlopen(request).read()
-
-    result = json.loads(content)
-    return result 
-
-
 def auth(request):
     signature = request.GET.get('signature', 'error')
     timestamp = request.GET.get('timestamp', 'error')
@@ -74,95 +49,143 @@ def auth(request):
         #print "weixin authentication failed"
         return False
 
+class Weixin_get_msg:
+    def __init__(self):
+        return
 
-def create_menu():
-    https = weixin_data.https_api['create_menu']
-    token = get_access_token()
+    def get_msgType(self, root):
+        return root.find('MsgType').text
 
-    request = urllib2.Request(https % (token), json.dumps(weixin_data.menu))
-    result = urllib2.urlopen(request).read()
+    def get_textMsgContent(self, root):
+        return root.find('Content').text
 
-    result = json.loads(result)
+    def get_eventKey(self, root):
+        return root.find("EventKey").text
 
-    #print result
-    return result['errcode']
+    def get_subEvent(self, root):
+        return root.find('Event').text
+
+    def get_echostr(self, request):
+        return request.GET.get('echostr', 'error')
+
+class Weixin_send_msg:
+    def __init__(self):
+        return
+
+    def build_textMsg_xml(self, root, msg=''):
+        self.FromUserName = root.find('FromUserName').text
+        self.ToUserName = root.find('ToUserName').text
+        if msg == '':
+            msg = Weixin_get_msg().get_textMsgContent(root)
+
+        return weixin_data.xmlTextMsg % (self.FromUserName, self.ToUserName, str(int(time.time())), msg)
+
+    def build_img_xml(self, root, imgId):
+        self.FromUserName = root.find('FromUserName').text
+        self.ToUserName = root.find('ToUserName').text
+
+        return weixin_data.xmlImgMsg % (self.FromUserName, self.ToUserName, str(int(time.time())), imgId)
+
+    def build_article_xml(self, root, articles):
+        self.ArticleCount = len(articles)
+
+        self.FromUserName = root.find('FromUserName').text
+        self.ToUserName = root.find('ToUserName').text
+
+        self.articleArray = [weixin_data.xmlArticleItem % (self.article['Title'], self.article['Description'], self.article['PicUrl'], self.article['Url']) for self.article in articles]
+
+        return weixin_data.xmlArticle % (self.FromUserName, self.ToUserName, str(int(time.time())), self.ArticleCount, ''.join(self.articleArray))
+
+
+
+class Weixin_manage_users:
+    def __init__(self):
+        return
+
+    def get_user_list(self):
+        self.token = get_access_token()
+        self.request = weixin_data.https_api['get_user_list'] % token
+        self.content = urllib2.urlopen(request).read()
+
+        self.result = json.loads(content)
+        return self.result 
+
+    def get_user_info(self, openid):
+        self.token = get_access_token()
+        self.request = weixin_data.https_api['get_user_info'] % (token, openid)
+        self.content = urllib2.urlopen(request).read()
+
+        self.result = json.loads(self.content)
+        return self.result 
+
+    def batch_get_user_info(self):
+        self.token = get_access_token()
+        self.request = weixin_data.https_api['batchget_user_info'] % token
+        self.content = urllib2.urlopen(request).read()
+
+        self.result = json.loads(self.content)
+        return self.result 
+
+
+class Weixin_ui:
+    def __init__(self):
+        return
+
+    def create_menu(self):
+        self.https = weixin_data.https_api['create_menu']
+        self.token = get_access_token()
+
+        self.request = urllib2.Request(https % (self.token), json.dumps(weixin_data.menu))
+        self.result = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.result)
+
+        #print result
+        return self.result['errcode']
+
+class Weixin_material:
+    def __init__(self):
+        return
 
 # fielType must one of them : 'image', 'voice', 'video', thumb'
-def upload_tmp_material(fileName, fileType):
-    register_openers()
-    token = get_access_token()
+    def upload_tmp_material(self, fileName, fileType):
+        register_openers()
+        self.token = get_access_token()
 
-    https = weixin_data.https_api['upload_tmp_material']
+        self.https = weixin_data.https_api['upload_tmp_material']
 
-    datagen, headers = multipart_encode({fileType:open(fileName, "rb")})
-    request = urllib2.Request(https % (token, fileType), datagen, headers)
+        self.datagen, self.headers = multipart_encode({fileType:open(fileName, "rb")})
+        self.request = urllib2.Request(https % (self.token, fileType), self.datagen, self.headers)
 
-    result = urllib2.urlopen(request).read()
-    result = json.dumps(result)
+        self.result = urllib2.urlopen(self.request).read()
+        self.result = json.dumps(self.result)
 
-    return result
+        return self.result
 
 
-def get_material_count():
-    https = weixin_data.https_api['get_materialcount']
+    def get_material_count(self):
+        self.https = weixin_data.https_api['get_materialcount']
 
-    token = get_access_token()
+        self.token = get_access_token()
 
-    result = urllib2.urlopen(https % token).read()
+        self.result = urllib2.urlopen(https % self.token).read()
 
-    result = json.dumps(result)
-    #print result
-    return result['errcode']
+        self.result = json.dumps(self.result)
+        #print result
+        return self.result['errcode']
 
-def get_material_list(arg):
-    https = weixin_data.https_api['batchget_material'] 
+    def get_material_list(self, arg):
+        self.https = weixin_data.https_api['batchget_material'] 
 
-    token = get_access_token()
-    request = urllib2.Request(https % (token), json.dumps(arg))
+        self.token = get_access_token()
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(arg))
 
-    result = urllib2.urlopen(request).read()
+        self.result = urllib2.urlopen(self.request).read()
 
-    result = json.loads(result)
+        self.result = json.loads(self.result)
 
-    #print result
-    return result['errcode']
+        #print result
+        return self.result['errcode']
 
-def build_textMsg_xml(root, msg=''):
-    FromUserName = root.find('FromUserName').text
-    ToUserName = root.find('ToUserName').text
-    if msg == '':
-        msg = get_textMsgContent(root)
-
-    return weixin_data.xmlTextMsg % (FromUserName, ToUserName, str(int(time.time())), msg)
-
-def build_img_xml(root, imgId):
-    FromUserName = root.find('FromUserName').text
-    ToUserName = root.find('ToUserName').text
-
-    return weixin_data.xmlImgMsg % (FromUserName, ToUserName, str(int(time.time())), imgId)
-
-def build_article_xml(root, articles):
-    ArticleCount = len(articles)
-
-    FromUserName = root.find('FromUserName').text
-    ToUserName = root.find('ToUserName').text
-
-    articleArray = [weixin_data.xmlArticleItem % (article['Title'], article['Description'], article['PicUrl'], article['Url']) for article in articles]
-
-    return weixin_data.xmlArticle % (FromUserName, ToUserName, str(int(time.time())), ArticleCount, ''.join(articleArray))
-
-def get_msgType(root):
-    return root.find('MsgType').text
-
-def get_textMsgContent(root):
-    return root.find('Content').text
-
-def get_eventKey(root):
-    return root.find("EventKey").text
-
-def get_subEvent(root):
-    return root.find('Event').text
-
-def get_echostr(request):
-    return request.GET.get('echostr', 'error')
-
+if __name__ == '__main__':
+    print 'testing weixin_api starting...'
