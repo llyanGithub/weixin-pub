@@ -49,6 +49,47 @@ def auth(request):
         #print "weixin authentication failed"
         return False
 
+class Weixin_device:
+    def __init__(self):
+        return
+    def authorize_device(self, post_data):
+        self.https = weixin_data.https_api['authorize_device']
+        self.token = get_access_token()
+
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(post_data))
+        self.result = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.result)
+
+        #print result
+        #return self.result['errcode']
+        return self.result
+
+    def get_qrcode(self):
+        self.token = get_access_token()
+        self.request = weixin_data.https_api['get_qrcode'] % (self.token, weixin_data.PRODUCT_ID)
+        self.content = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.content)
+        return self.result 
+
+
+
+class Weixin_semproxy:
+    def __init__(self):
+        return
+    def semproxy_search(self, post_data):
+        self.https = weixin_data.https_api['semproxy_search']
+        self.token = get_access_token()
+
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(post_data))
+        self.result = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.result)
+
+        #return self.result['errcode']
+        return self.result
+
 class Weixin_get_msg:
     def __init__(self):
         return
@@ -104,44 +145,76 @@ class Weixin_manage_users:
 
     def get_user_list(self):
         self.token = get_access_token()
-        self.request = weixin_data.https_api['get_user_list'] % token
-        self.content = urllib2.urlopen(request).read()
+        self.request = weixin_data.https_api['get_user_list'] % self.token
+        self.content = urllib2.urlopen(self.request).read()
 
-        self.result = json.loads(content)
+        self.result = json.loads(self.content)
         return self.result 
 
     def get_user_info(self, openid):
         self.token = get_access_token()
-        self.request = weixin_data.https_api['get_user_info'] % (token, openid)
-        self.content = urllib2.urlopen(request).read()
+        self.request = weixin_data.https_api['get_user_info'] % (self.token, openid)
+        self.content = urllib2.urlopen(self.request).read()
 
         self.result = json.loads(self.content)
         return self.result 
 
-    def batch_get_user_info(self):
+    def batch_get_user_info(self, data):
+        self.https = weixin_data.https_api['batchget_user_info']
         self.token = get_access_token()
-        self.request = weixin_data.https_api['batchget_user_info'] % token
-        self.content = urllib2.urlopen(request).read()
 
-        self.result = json.loads(self.content)
-        return self.result 
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(data))
+        self.result = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.result)
+
+        return self.result
+        #self.token = get_access_token()
+        #self.request = weixin_data.https_api['batchget_user_info'] % self.token
+        #self.content = urllib2.urlopen(self.request).read()
+
+        #self.result = json.loads(self.content)
+        #return self.result 
 
 
 class Weixin_ui:
     def __init__(self):
         return
 
-    def create_menu(self):
+    def create_menu(self, menu):
         self.https = weixin_data.https_api['create_menu']
         self.token = get_access_token()
 
-        self.request = urllib2.Request(https % (self.token), json.dumps(weixin_data.menu))
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(menu))
         self.result = urllib2.urlopen(self.request).read()
 
         self.result = json.loads(self.result)
 
         #print result
-        return self.result['errcode']
+        #return self.result['errcode']
+        return self.result
+    def get_menu(self):
+        self.https = weixin_data.https_api['get_menu']
+
+        self.token = get_access_token()
+
+        self.result = urllib2.urlopen(self.https % self.token).read()
+
+        self.result = json.dumps(self.result)
+        #print result
+        #return self.result['errcode']
+        return self.result
+    def del_menu(self):
+        self.https = weixin_data.https_api['del_menu']
+
+        self.token = get_access_token()
+
+        self.result = urllib2.urlopen(self.https % self.token).read()
+
+        self.result = json.dumps(self.result)
+        #print result
+        #return self.result['errcode']
+        return self.result
 
 class Weixin_material:
     def __init__(self):
@@ -155,7 +228,7 @@ class Weixin_material:
         self.https = weixin_data.https_api['upload_tmp_material']
 
         self.datagen, self.headers = multipart_encode({fileType:open(fileName, "rb")})
-        self.request = urllib2.Request(https % (self.token, fileType), self.datagen, self.headers)
+        self.request = urllib2.Request(self.https % (self.token, fileType), self.datagen, self.headers)
 
         self.result = urllib2.urlopen(self.request).read()
         self.result = json.dumps(self.result)
@@ -168,7 +241,7 @@ class Weixin_material:
 
         self.token = get_access_token()
 
-        self.result = urllib2.urlopen(https % self.token).read()
+        self.result = urllib2.urlopen(self.https % self.token).read()
 
         self.result = json.dumps(self.result)
         #print result
@@ -187,5 +260,80 @@ class Weixin_material:
         #print result
         return self.result['errcode']
 
+def test_manage_users():
+    manager = Weixin_manage_users()
+    print manager.get_user_list() 
+
+    info =  manager.get_user_info('op7Qnt_r_bgoqhezUYjGDt-2WQSo') 
+    for key, value in info.items():
+        print "%s: %s" % (key, value)
+
+    post_data = {
+        "user_list": [
+            {
+                "openid": "op7Qnt_r_bgoqhezUYjGDt-2WQSo", 
+                "lang": "zh-CN"
+            }, 
+        ]
+    }
+    info = manager.batch_get_user_info(post_data) 
+    userList = info['user_info_list']
+    for user_info in userList:
+        for key, value in user_info.items():
+            print "%s: %s" % (key, value)
+
+def test_ui():
+    ui = Weixin_ui()
+    print ui.create_menu(weixin_data.menu)
+    print ui.get_menu()
+    #print ui.del_menu()
+
+def test_semproxy():
+    semproxy = Weixin_semproxy()
+    appid = weixin_data.APPID
+    post_data = {
+        "query":"查一下明天从北京到上海的南航机票",
+        "city":"北京",
+        "category": "flight,hotel",
+        "appid":"wx7f2f982ebe772b4b",
+        "uid":"op7Qnt_r_bgoqhezUYjGDt-2WQSo"
+    } 
+    print semproxy.semproxy_search(post_data)
+    return
+
+def test_device():
+    device = Weixin_device()
+    #print device.get_qrcode()
+    post_data = {
+        "device_num":"1",
+        "device_list":[
+            {
+                "id":"dev1",
+                "mac":"E84E06317CAD",
+                "connect_protocol":"4",
+                "auth_key":"1234567890ABCDEF1234567890ABCDEF",
+                "close_strategy":"1",
+                "conn_strategy":"1",
+                "crypt_method":"0",
+                "auth_ver":"0",
+                "manu_mac_pos":"-1",
+                "ser_mac_pos":"-2",
+                "ble_simple_protocol": "0"
+            }
+        ],
+        "op_type":"0",
+        "product_id": weixin_data.PRODUCT_ID
+    }
+    print device.authorize_device(post_data)
+    return
+
+def api_test():
+#test_manage_users()
+#test_ui()
+#test_semproxy()
+    test_device()
+    return
+
 if __name__ == '__main__':
     print 'testing weixin_api starting...'
+    api_test()
