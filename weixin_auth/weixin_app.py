@@ -11,6 +11,8 @@ import weixin_data
 Get_msg = Weixin_get_msg()
 Send_msg = Weixin_send_msg()
 
+image_media_id = "e3k9DDlDCiKPvuHLfCIC9YrJ5sse8OM4G6QUpV64NeQa1y1yFyN62Tyd1fr6xdbW"
+
 articles = [
     {
         'Title':'First Article',
@@ -32,7 +34,8 @@ def weixin_process_click_event(root):
         if key in menu.values():
             name = menu.get('name', 'invalid key')
             if name == 'images':
-                return weixin_send_imgMsg(root, 'mpg8h8TZ6-vBKebGVkq_I5tlJ-s_VJqKF9za9IhG_OQm7YTiTSTJKk-bOxvw9gC7')
+                #return weixin_send_imgMsg(root, 'mpg8h8TZ6-vBKebGVkq_I5tlJ-s_VJqKF9za9IhG_OQm7YTiTSTJKk-bOxvw9gC7')
+                return weixin_send_imgMsg(root, image_media_id)
             elif name == 'articles':
                 return weixin_send_articles(root, articles) 
             return weixin_send_textMsg(root, name)
@@ -98,14 +101,22 @@ def process_POST(request):
                 return weixin_send_textMsg(root)
         elif MsgType == weixin_data.MSG_IMAGE:
             print "Receive image"
+            imageMsgContent =  Get_msg.get_imageMsgContent(root)
+            print imageMsgContent  
+            return weixin_send_textMsg(root, r"你发送了一张图片 media_id:%s" % imageMsgContent['media_id'])
         elif MsgType == weixin_data.MSG_VOICE:
             print "Receive voice"
+            voiceContent = Get_msg.get_voiceMsgContent(root)
+            print "voice: %s" % voiceContent
+            return weixin_send_textMsg(root, (r"你说的是: %s" % voiceContent.encode('utf8')))
         elif MsgType == weixin_data.MSG_VIDEO:
             print "Receive video"
         elif MsgType == weixin_data.MSG_SHORTVIDEO:
             print "Receive shortvideo"
         elif MsgType == weixin_data.MSG_LOCATION:
             print "Receive location"
+            locationContent = Get_msg.get_locationMsgContent(root)
+            return weixin_send_textMsg(root, r"您的位置是, 经度:%s 纬度:%s" % (locationContent['Location_Y'], locationContent['Location_X']))
         elif MsgType == weixin_data.MSG_EVENT:
             print "Receive event"
             return weixin_process_event(root)

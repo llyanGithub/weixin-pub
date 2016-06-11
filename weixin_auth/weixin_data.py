@@ -16,6 +16,8 @@ https_api = {
     'get_user_info':'https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN',
     'batchget_user_info':"https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token=%s",
     'upload_tmp_material':"https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s",
+    'upload_material':"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=%s",
+    'del_material':"https://api.weixin.qq.com/cgi-bin/material/del_material?access_token=%s",
     'get_menu': 'https://api.weixin.qq.com/cgi-bin/menu/get?access_token=%s',
     'del_menu': 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s',
     'semproxy_search':'https://api.weixin.qq.com/semantic/semproxy/search?access_token=%s',
@@ -73,22 +75,22 @@ xmlArticleItem = """
 
 menu = {
     "button":[
-    #{ 
-        #"type":"click",
-        #"name":"images",
-        #"key":"V1001_TODAY_MUSIC",
-        #"sub_button":[]
-    #},
-    {
+    { 
+        "type":"click",
         "name":"images",
-        "sub_button":[
-        {
-            "type":"view",
-            "name":"search",
-            "url":"http://www.baidu.com/"
-        }
-        ]
+        "key":"V1001_TODAY_MUSIC",
+        "sub_button":[]
     },
+    #{
+        #"name":"images",
+        #"sub_button":[
+        #{
+            #"type":"view",
+            #"name":"search",
+            #"url":"http://www.baidu.com/"
+        #}
+        #]
+    #},
     { 
         "type":"click",
         "name":"articles",

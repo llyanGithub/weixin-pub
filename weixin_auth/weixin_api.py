@@ -7,6 +7,7 @@ import urllib2
 import urllib
 import json
 import time
+import os
 
 import weixin_data
 
@@ -99,6 +100,15 @@ class Weixin_get_msg:
 
     def get_textMsgContent(self, root):
         return root.find('Content').text
+
+    def get_voiceMsgContent(self, root):
+        return root.find('Recognition').text
+
+    def get_imageMsgContent(self, root):
+        return {"url":root.find('PicUrl').text, "media_id":root.find('MediaId').text}
+
+    def get_locationMsgContent(self, root):
+        return {"Location_X":root.find('Location_X').text, "Location_Y":root.find('Location_Y').text}
 
     def get_eventKey(self, root):
         return root.find("EventKey").text
@@ -235,6 +245,17 @@ class Weixin_material:
 
         return self.result
 
+    def upload_material(self, fileName):
+        self.token = get_access_token()
+
+        self.https = weixin_data.https_api['upload_material'] % self.token
+
+        self.cmd = 'curl -F media=@%s %s' % (fileName, self.https)
+        self.result = os.popen(self.cmd).read()
+
+        self.result = json.dumps(self.result)
+
+        return self.result
 
     def get_material_count(self):
         self.https = weixin_data.https_api['get_materialcount']
@@ -243,22 +264,41 @@ class Weixin_material:
 
         self.result = urllib2.urlopen(self.https % self.token).read()
 
-        self.result = json.dumps(self.result)
+        self.result = json.loads(self.result)
         #print result
-        return self.result['errcode']
+        return self.result
 
-    def get_material_list(self, arg):
+    def get_material_list(self, materialType, materialOffset, materialCnt):
         self.https = weixin_data.https_api['batchget_material'] 
 
         self.token = get_access_token()
-        self.request = urllib2.Request(self.https % (self.token), json.dumps(arg))
+        self.post_data = {
+            "type":materialType,
+            "offset":materialOffset,
+            "count":materialCnt
+        }
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(self.post_data))
 
         self.result = urllib2.urlopen(self.request).read()
 
         self.result = json.loads(self.result)
 
         #print result
-        return self.result['errcode']
+        return self.result
+
+    def del_material(self, media_id):
+        return
+
+    def del_all_material(self):
+        return
+
+    def get_all_material(self):
+        self.material = []
+        for self.materialType, self.materialCnt in self.get_material_count().items():
+            if self.materialCnt:
+                self.result = self.get_material_list(self.materialType, 0, self.materialCnt)
+                self.material.append(json.loads(self.result))
+        return self.material
 
 def test_manage_users():
     manager = Weixin_manage_users()
@@ -327,11 +367,20 @@ def test_device():
     print device.authorize_device(post_data)
     return
 
+def test_material():
+    material = Weixin_material()
+    #print material.upload_tmp_material('weixin_auth/carton.jpg', 'image')
+    #print material.upload_material('weixin_auth/carton.jpg')
+    #print material.get_material_list('image', 0, 2)
+    print material.get_material_count()
+    #print material.get_all_material()
+
 def api_test():
 #test_manage_users()
-#test_ui()
+    #test_ui()
 #test_semproxy()
-    test_device()
+    #test_device()
+    test_material()
     return
 
 if __name__ == '__main__':
