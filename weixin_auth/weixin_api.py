@@ -257,6 +257,10 @@ class Weixin_material:
 
         return self.result
 
+    def upload_batch_material(self, fileNames):
+        for self.fileName in fileNames:
+            self.upload_material(self.fileName)
+
     def get_material_count(self):
         self.https = weixin_data.https_api['get_materialcount']
 
@@ -266,6 +270,7 @@ class Weixin_material:
 
         self.result = json.loads(self.result)
         #print result
+        print type(self.result)
         return self.result
 
     def get_material_list(self, materialType, materialOffset, materialCnt):
@@ -287,17 +292,33 @@ class Weixin_material:
         return self.result
 
     def del_material(self, media_id):
-        return
+        self.https = weixin_data.https_api['del_material'] 
+
+        self.token = get_access_token()
+        self.post_data = {
+            "media_id":media_id
+        }
+        self.request = urllib2.Request(self.https % (self.token), json.dumps(self.post_data))
+
+        self.result = urllib2.urlopen(self.request).read()
+
+        self.result = json.loads(self.result)
+
+        print self.result, media_id
+        return self.result
 
     def del_all_material(self):
-        return
+        self.result = []
+        for self.material in self.get_all_material():
+            for self.item in self.material['item']:
+                self.del_material(self.item['media_id'])
 
     def get_all_material(self):
         self.material = []
         for self.materialType, self.materialCnt in self.get_material_count().items():
-            if self.materialCnt:
-                self.result = self.get_material_list(self.materialType, 0, self.materialCnt)
-                self.material.append(json.loads(self.result))
+            if int(self.materialCnt):
+                self.result = self.get_material_list(self.materialType.split('_')[0], 0, int(self.materialCnt))
+                self.material.append(self.result)
         return self.material
 
 def test_manage_users():
@@ -332,8 +353,8 @@ def test_semproxy():
     semproxy = Weixin_semproxy()
     appid = weixin_data.APPID
     post_data = {
-        "query":"查一下明天从北京到上海的南航机票",
-        "city":"北京",
+        "query":r"查一下明天从北京到上海的南航机票",
+        "city":r"北京",
         "category": "flight,hotel",
         "appid":"wx7f2f982ebe772b4b",
         "uid":"op7Qnt_r_bgoqhezUYjGDt-2WQSo"
@@ -372,13 +393,18 @@ def test_material():
     #print material.upload_tmp_material('weixin_auth/carton.jpg', 'image')
     #print material.upload_material('weixin_auth/carton.jpg')
     #print material.get_material_list('image', 0, 2)
-    print material.get_material_count()
+    #print material.get_material_count()
     #print material.get_all_material()
+    #material.del_all_material()
+
+    fileNames = ['weixin_auth/carton.jpg', 'weixin_auth/Koala.jpg', 'weixin_auth/Penguins.jpg']
+    material.upload_batch_material(fileNames)
+    print material.get_material_count()
 
 def api_test():
 #test_manage_users()
     #test_ui()
-#test_semproxy()
+    #test_semproxy()
     #test_device()
     test_material()
     return

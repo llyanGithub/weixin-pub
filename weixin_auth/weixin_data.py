@@ -23,7 +23,7 @@ https_api = {
     'semproxy_search':'https://api.weixin.qq.com/semantic/semproxy/search?access_token=%s',
     'authorize_device':'https://api.weixin.qq.com/device/authorize_device?access_token=%s',
     'get_qrcode':'https://api.weixin.qq.com/device/getqrcode?access_token=%s&product_id=%s',
-        }
+}
 
 MSG_TEXT = 'text'
 MSG_IMAGE = 'image'
