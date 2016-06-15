@@ -23,6 +23,9 @@ https_api = {
     'semproxy_search':'https://api.weixin.qq.com/semantic/semproxy/search?access_token=%s',
     'authorize_device':'https://api.weixin.qq.com/device/authorize_device?access_token=%s',
     'get_qrcode':'https://api.weixin.qq.com/device/getqrcode?access_token=%s&product_id=%s',
+    'merchant_create':'https://api.weixin.qq.com/merchant/create?access_token=%s',
+    'merchant_del':'https://api.weixin.qq.com/merchant/del?access_token=%s',
+    'merchant_update':'https://api.weixin.qq.com/merchant/update?access_token=%s',
 }
 
 MSG_TEXT = 'text'

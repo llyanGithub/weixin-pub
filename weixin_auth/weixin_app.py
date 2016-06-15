@@ -8,6 +8,9 @@ import xml.etree.ElementTree as ET
 from weixin_api import Weixin_get_msg, Weixin_send_msg, Weixin_manage_users, Weixin_ui, Weixin_material
 import weixin_data
 
+import socket
+import sys
+
 Get_msg = Weixin_get_msg()
 Send_msg = Weixin_send_msg()
 
@@ -106,9 +109,12 @@ def process_POST(request):
             return weixin_send_textMsg(root, r"你发送了一张图片 media_id:%s" % imageMsgContent['media_id'])
         elif MsgType == weixin_data.MSG_VOICE:
             print "Receive voice"
-            voiceContent = Get_msg.get_voiceMsgContent(root)
+            voiceContent = Get_msg.get_voiceMsgContent(root).encode('utf8')
             print "voice: %s" % voiceContent
-            return weixin_send_textMsg(root, (r"你说的是: %s" % voiceContent.encode('utf8')))
+            if '播放' in voiceContent and '双截棍' in voiceContent:
+                print 'play song: 双截棍'
+
+            return weixin_send_textMsg(root, (r"你说的是: %s" % voiceContent))
         elif MsgType == weixin_data.MSG_VIDEO:
             print "Receive video"
         elif MsgType == weixin_data.MSG_SHORTVIDEO:

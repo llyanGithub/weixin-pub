@@ -321,6 +321,48 @@ class Weixin_material:
                 self.material.append(self.result)
         return self.material
 
+class Weixin_merchant:
+    def __init__(self):
+        return
+    
+    def create(self, post_data):
+        https = weixin_data.https_api['merchant_create'] 
+
+        token = get_access_token()
+        request = urllib2.Request(https % (token), json.dumps(post_data))
+
+        result = urllib2.urlopen(request).read()
+
+        result = json.loads(result)
+
+        #print result
+        return result
+
+    def delete(self, product_id):
+        https = weixin_data.https_api['merchant_del'] 
+
+        token = get_access_token()
+        request = urllib2.Request(https % (token), json.dumps(post_data))
+
+        result = urllib2.urlopen(request).read()
+
+        result = json.loads(result)
+
+        return result
+
+    def update(self, post_data):
+        https = weixin_data.https_api['merchant_update'] 
+
+        token = get_access_token()
+        request = urllib2.Request(https % (token), json.dumps(post_data))
+
+        result = urllib2.urlopen(request).read()
+
+        result = json.loads(result)
+
+        #print result
+        return result
+
 def test_manage_users():
     manager = Weixin_manage_users()
     print manager.get_user_list() 
@@ -401,12 +443,118 @@ def test_material():
     material.upload_batch_material(fileNames)
     print material.get_material_count()
 
+def test_merchant():
+    merchant = Weixin_merchant()
+    post_data = {
+        "product_base": {
+            "category_id": [
+                "537074298"
+            ],
+            "property": [
+                {
+                    "id": "1075741879",
+                    "vid": "1079749967"
+                },
+                {
+                    "id": "1075754127",
+                    "vid": "1079795198"
+                },
+                {
+                    "id": "1075777334",
+                    "vid": "1079837440"
+                }
+           ],
+            "name": "testaddproduct",
+            "sku_info": [
+                {
+                    "id": "1075741873",
+                    "vid": [
+                        "1079742386",
+                        "1079742363"
+                    ]
+                }
+            ],
+            "main_img":
+            "http://mmbiz.qpic.cn/mmbiz/3NqDEPaH6Lf8xMvYJwbPQzezy58pcjdq1HGicDia0otrdxADr7XO5gClrGvEgxXJw4feuy7PeZWQKqlyHBO4JvMA/0",
+            "img": [
+                "http://mmbiz.qpic.cn/mmbiz/3NqDEPaH6Lf8xMvYJwbPQzezy58pcjdq1HGicDia0otrdxADr7XO5gClrGvEgxXJw4feuy7PeZWQKqlyHBO4JvMA/0"
+            ],
+            "detail": [
+                {
+                    "text": "test first"
+                },
+                {
+                    "img":
+                    "http://mmbiz.qpic.cn/mmbiz/3NqDEPaH6Lf8xMvYJwbPQzezy58pcjdq1HGicDia0otrdxADr7XO5gClrGvEgxXJw4feuy7PeZWQKqlyHBO4JvMA/0"
+                },
+                {
+                    "text": "test again"
+                }
+            ],
+            "buy_limit": 10
+            },
+        #"sku_list": [
+                #{
+                    #"sku_id": "1075741873:1079742386",
+                    #"price": 30,
+                    #"icon_url":
+                    #"http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+                    #"product_code": "testing",
+                    #"ori_price": 9000000,
+                    #"quantity": 800
+                    #},
+                #{
+                    #"sku_id": "1075741873:1079742363",
+                    #"price": 30,
+                    #"icon_url":
+                    #"http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+                    #"product_code": "testingtesting",
+                    #"ori_price": 9000000,
+                    #"quantity": 800
+                    #}
+        #],
+        "attrext": {
+                "location": {
+                    "country": "中国",
+                    "province": "广东省",
+                    "city": "广州市",
+                    "address": "T.I.T 创意园"
+                },
+                "isPostFree": 0,
+                "isHasReceipt": 1,
+                "isUnderGuaranty": 0,
+                "isSupportReplace": 0
+        },
+        "delivery_info": {
+                "delivery_type": 0,
+                "template_id": 0,
+                "express": [
+                    {
+                        "id": 10000027,
+                        "price": 100
+                    },
+                    {
+                        "id": 10000028,
+                        "price": 100
+                    },
+                    {
+                        "id": 10000029,
+                        "price": 100
+                    }
+                ]
+        }
+
+    }
+    print merchant.create(post_data) 
+    return
+
 def api_test():
 #test_manage_users()
     #test_ui()
     #test_semproxy()
     #test_device()
-    test_material()
+    #test_material()
+    test_merchant()
     return
 
 if __name__ == '__main__':
